@@ -1,40 +1,81 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "Forest Reserve Area by State (2023)",
+  "title": "Forest Reserve Coverage by State (2021)",
   "width": 800,
   "height": 600,
-  "projection": {"type": "conicEqualArea",
-    "center": [110, 4],        
-    "parallels": [1, 7],     
-    "rotate": [-110, 0, 0],   
-    "scale": 3000 
-}, 
-  "data": {
-    "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/js/ne_10m_admin_1_states_provinces.json",
-    "format": {"type": "topojson", "feature": "ne_10m_admin_1_states_provinces"} 
+  "projection": {
+    "type": "conicEqualArea",
+    "center": [110, 1],
+    "parallels": [0, 8],
+    "scale": 2000
   },
-  "transform": [
+  "layer": [
     {
-      "lookup": "properties.name",  
-      "from": {
-        "data": {
-          "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/data/forest_reserve_cleaned.csv"
+      "data": {
+        "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/js/ne_10m.json",
+        "format": {"type": "topojson", "feature": "ne_10m_graticules_1"}
+      },
+      "mark": {
+        "type": "geoshape",
+        "stroke": "#dddddd",
+        "strokeWidth": 0.5,
+        "fill": null
+      }
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/js/ne_10m.json",
+        "format": {
+          "type": "topojson",
+          "feature": "ne_10m_admin_1_states_provinces"
+        }
+      },
+      "transform": [
+        {
+          "lookup": "properties.name",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/data/forest_reserve_cleaned.csv"
+            },
+            "key": "state",
+            "fields": ["area"]
+          }
         },
-        "key": "state",
-        "fields": ["area"]
+        {
+          "lookup": "properties.name",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/data/malaysia_state_area.csv"
+            },
+            "key": "state",
+            "fields": ["total_area_km2"]
+          }
+        },
+        {
+          "calculate": "datum.area / (datum.total_area_km2 * 100)",
+          "as": "forest_pct"
+        }
+      ],
+      "mark": {"type": "geoshape", "stroke": "#aaaaaa", "strokeWidth": 0.7},
+      "encoding": {
+        "color": {
+          "field": "forest_pct",
+          "type": "quantitative",
+          "title": "Forest Reserve Coverage (%)",
+          "scale": {"scheme": "greens"}
+        },
+        "tooltip": [
+          {"field": "properties.name", "type": "nominal", "title": "State"},
+          {"field": "area", "type": "quantitative", "title": "Forest Reserve (ha)"},
+          {"field": "total_area_km2", "type": "quantitative", "title": "Total Area (km²)"},
+          {
+            "field": "forest_pct",
+            "type": "quantitative",
+            "title": "% of State Area",
+            "format": ".1%"
+          }
+        ]
       }
     }
-  ],
-  "mark": {"type": "geoshape"},
-  "encoding": {
-    "color": {
-      "field": "area",
-      "type": "quantitative",
-      "scale": {"scheme": "greens"}
-    },
-    "tooltip": [
-      {"field": "properties.name", "type": "nominal", "title": "State"},
-      {"field": "area", "type": "quantitative", "title": "Forest Reserve Area (ha)"}
-    ]
-  }
+  ]
 }
