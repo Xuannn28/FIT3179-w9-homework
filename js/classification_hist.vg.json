@@ -1,0 +1,39 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Histogram of Forest Reserve Percentages",
+  "width": 800,
+  "height": 400,
+  "data": {
+    "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/data/forest_reserve_cleaned.csv"
+  },
+  "transform": [
+    {
+      "lookup": "state",
+      "from": {
+        "data": {
+          "url": "https://raw.githubusercontent.com/Xuannn28/FIT3179-w9-homework/main/data/malaysia_state_area.csv"
+        },
+        "key": "state",
+        "fields": ["total_area_km2"]
+      }
+    },
+    {
+      "calculate": "datum.area / (datum.total_area_km2 * 100)",
+      "as": "forest_pct"
+    }
+  ],
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "forest_pct",
+      "bin": true,
+      "type": "quantitative",
+      "title": "% Forest Reserve"
+    },
+    "y": {
+      "aggregate": "count",
+      "type": "quantitative",
+      "title": "Count of States"
+    }
+  }
+}
